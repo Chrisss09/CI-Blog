@@ -6,7 +6,7 @@ from .settings import MEDIA_ROOT
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(url='posts')),
+    path('', RedirectView.as_view(url='posts/')),
     path('posts/', include('posts.urls')),
-    path('media/<int:path_id>', serve, {'document_root': MEDIA_ROOT}),
+    path('media/<int:path_id>/', serve, {'document_root': MEDIA_ROOT}),
 ]
