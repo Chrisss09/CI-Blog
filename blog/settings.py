@@ -13,10 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import dj_database_url
 
-if os.environ.get('DEVELOPMENT'):
-    development = True
-else:
-    development = False
+if os.path.exists('env.py'):
+    import env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = development
+DEBUG = True
 
 ALLOWED_HOSTS = [os.environ.get('HOSTNAME'), '127.0.0.1']
 
@@ -83,17 +81,18 @@ WSGI_APPLICATION = 'blog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-if development:
-    print('Postgres URL not found, using sqlite instead')
+if "DATABASE_URL" in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    }
+else:
+    print("Postgres URL not found, using sqlite instead")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-else:
-    DATABASES = {'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -137,8 +136,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-try:
-    from .local_settings import SECRET_KEY
-except ImportError:
-    pass
